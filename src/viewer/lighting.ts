@@ -6,6 +6,19 @@ import type { BuiltHouse } from '../builder/build';
 
 export type TimeOfDay = 'day' | 'night';
 
+/**
+ * Day = a morning sun at about 8 AM: low in the east-south-east sky, warm light,
+ * long shadows. Compass azimuth (0 = plan north, 90 = east), elevation above the horizon.
+ */
+export const MORNING_SUN = { azimuthDeg: 105, elevationDeg: 20, distance: 40 };
+
+/** Unit world-space vector pointing from the house towards the sun (plan north = world -z). */
+export function sunDirection(azimuthDeg: number, elevationDeg: number): [number, number, number] {
+  const az = (azimuthDeg * Math.PI) / 180;
+  const el = (elevationDeg * Math.PI) / 180;
+  return [Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el)];
+}
+
 interface Preset {
   sky: number;
   fogNear: number;
@@ -13,25 +26,24 @@ interface Preset {
   hemiSky: number;
   hemiGround: number;
   hemi: number;
-  sunColor: number;
-  sun: number;
-  /** Direction the sun/moon shines from (world, normalised later). */
-  sunFrom: [number, number, number];
+  /** Day: the point-light sun. Night: the directional moon. */
+  lightColor: number;
+  light: number;
   exposure: number;
   lampsOn: boolean;
 }
 
 const PRESETS: Record<TimeOfDay, Preset> = {
   day: {
-    sky: 0xbfd8ee, fogNear: 60, fogFar: 200,
-    hemiSky: 0xffffff, hemiGround: 0xd9d2c5, hemi: 1.6,
-    sunColor: 0xfff2dd, sun: 2.8, sunFrom: [0.65, 0.75, 0.55],
+    sky: 0xc9dcec, fogNear: 70, fogFar: 220,
+    hemiSky: 0xe8f0ff, hemiGround: 0xd9cbb5, hemi: 1.35,
+    lightColor: 0xffd6a6, light: 3.2,
     exposure: 1.0, lampsOn: false,
   },
   night: {
     sky: 0x0a1020, fogNear: 25, fogFar: 90,
     hemiSky: 0x2a3a66, hemiGround: 0x0c0c10, hemi: 0.5,
-    sunColor: 0x9fb4ff, sun: 0.6, sunFrom: [-0.5, 1.0, -0.4],
+    lightColor: 0x9fb4ff, light: 0.6,
     exposure: 1.0, lampsOn: true,
   },
 };
@@ -39,14 +51,19 @@ const PRESETS: Record<TimeOfDay, Preset> = {
 const LAMP_INTENSITY = 6; // candela (physically based units)
 const LAMP_RANGE = 9;
 
+const MOON_FROM: [number, number, number] = [-0.5, 1.0, -0.4];
+
 /**
- * Sun/moon with shadows, sky light, and one ceiling lamp per room.
+ * Day: a visible sun in the sky that is a shadow-casting point light.
+ * Night: a dim directional moon. Both have sky light, and at night one ceiling lamp per room.
  * Lamps (and their shadow maps) only run on the floor the player is on, so
  * the cost stays bounded and light never leaks through the slab between floors.
  */
 export class Lighting {
   mode: TimeOfDay = 'day';
-  readonly sun: THREE.DirectionalLight;
+  readonly sun: THREE.PointLight;
+  readonly sunDisc: THREE.Group;
+  readonly moon: THREE.DirectionalLight;
   readonly hemi: THREE.HemisphereLight;
   private lampsByFloor: { light: THREE.PointLight; bulb: THREE.Mesh }[][];
   private activeFloor = -1;
@@ -82,18 +99,35 @@ export class Lighting {
     this.hemi = new THREE.HemisphereLight();
     scene.add(this.hemi);
 
-    this.sun = new THREE.DirectionalLight();
+    // Sun: a point light far out in the 8 AM direction. decay 0 = no distance falloff,
+    // like real sunlight; its shadows fan out slightly from the light.
+    const { azimuthDeg, elevationDeg, distance } = MORNING_SUN;
+    const sunPos = this.centre.clone().addScaledVector(new THREE.Vector3(...sunDirection(azimuthDeg, elevationDeg)), distance);
+    this.sun = new THREE.PointLight(0xffffff, 1, 0, 0);
+    this.sun.position.copy(sunPos);
     this.sun.castShadow = true;
-    const sc = this.sun.shadow.camera;
+    this.sun.shadow.mapSize.set(2048, 2048);
+    this.sun.shadow.camera.near = 1;
+    this.sun.shadow.camera.far = distance * 3;
+    this.sun.shadow.bias = -0.0005;
+    this.sun.shadow.normalBias = 0.03;
+    this.sunDisc = makeSunDisc();
+    this.sunDisc.position.copy(sunPos);
+    scene.add(this.sun, this.sunDisc);
+
+    this.moon = new THREE.DirectionalLight();
+    this.moon.castShadow = true;
+    const sc = this.moon.shadow.camera;
     sc.left = sc.bottom = -this.radius;
     sc.right = sc.top = this.radius;
     sc.near = 0.5;
     sc.far = this.radius * 4;
-    this.sun.shadow.mapSize.set(2048, 2048);
-    this.sun.shadow.bias = -0.0004;
-    this.sun.shadow.normalBias = 0.03;
-    this.sun.target.position.copy(this.centre);
-    scene.add(this.sun, this.sun.target);
+    this.moon.shadow.mapSize.set(2048, 2048);
+    this.moon.shadow.bias = -0.0004;
+    this.moon.shadow.normalBias = 0.03;
+    this.moon.target.position.copy(this.centre);
+    this.moon.position.copy(this.centre).addScaledVector(new THREE.Vector3(...MOON_FROM).normalize(), this.radius * 2);
+    scene.add(this.moon, this.moon.target);
 
     // Ceiling lamps.
     const bulbMat = (this.bulbMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffe2b0, emissiveIntensity: 0 }));
@@ -145,10 +179,12 @@ export class Lighting {
     this.hemi.color.setHex(p.hemiSky);
     this.hemi.groundColor.setHex(p.hemiGround);
     this.hemi.intensity = p.hemi;
-    this.sun.color.setHex(p.sunColor);
-    this.sun.intensity = p.sun;
-    const dir = new THREE.Vector3(...p.sunFrom).normalize();
-    this.sun.position.copy(this.centre).addScaledVector(dir, this.radius * 2);
+    const day = mode === 'day';
+    this.sun.visible = this.sunDisc.visible = day;
+    this.moon.visible = !day;
+    const active = day ? this.sun : this.moon;
+    active.color.setHex(p.lightColor);
+    active.intensity = p.light;
     this.renderer.toneMappingExposure = p.exposure;
     this.bulbMat.emissiveIntensity = p.lampsOn ? 2.5 : 0;
     this.activeFloor = -1; // force lamp refresh
@@ -165,4 +201,39 @@ export class Lighting {
     const on = PRESETS[this.mode].lampsOn;
     this.lampsByFloor.forEach((lamps, i) => lamps.forEach(({ light }) => (light.visible = on && i === floor)));
   }
+}
+
+/** The visible sun: a bright disc with a soft additive glow. Never casts or receives shadows. */
+function makeSunDisc(): THREE.Group {
+  const g = new THREE.Group();
+  g.name = 'sun';
+  const disc = new THREE.Mesh(
+    new THREE.SphereGeometry(1.1, 32, 16),
+    new THREE.MeshBasicMaterial({ color: 0xfff4d6, fog: false, toneMapped: false }),
+  );
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const x = c.getContext('2d')!;
+  const grad = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, 'rgba(255,236,190,1)');
+  grad.addColorStop(0.25, 'rgba(255,214,150,0.55)');
+  grad.addColorStop(1, 'rgba(255,200,130,0)');
+  x.fillStyle = grad;
+  x.fillRect(0, 0, 128, 128);
+  const glow = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(c),
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      fog: false,
+      toneMapped: false,
+    }),
+  );
+  glow.scale.setScalar(12);
+  g.add(disc, glow);
+  g.traverse((o) => {
+    o.castShadow = false;
+    o.receiveShadow = false;
+  });
+  return g;
 }
