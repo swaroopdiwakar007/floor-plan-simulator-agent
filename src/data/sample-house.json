@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "house": { "name": "Sample two-storey house", "units": "m", "defaultFloorHeight": 3.0 },
+  "floors": [
+    {
+      "id": "ground",
+      "name": "Ground floor",
+      "elevation": 0,
+      "height": 3.0,
+      "walls": [
+        { "id": "g-s", "a": [0, 0], "b": [10, 0], "thickness": 0.25 },
+        { "id": "g-e", "a": [10, 0], "b": [10, 8], "thickness": 0.25 },
+        { "id": "g-n", "a": [10, 8], "b": [0, 8], "thickness": 0.25 },
+        { "id": "g-w", "a": [0, 8], "b": [0, 0], "thickness": 0.25 },
+        { "id": "g-hall", "a": [3, 0], "b": [3, 8], "thickness": 0.12 },
+        { "id": "g-mid", "a": [3, 4.5], "b": [10, 4.5], "thickness": 0.12 },
+        { "id": "g-wc", "a": [7.5, 4.5], "b": [7.5, 8], "thickness": 0.12 }
+      ],
+      "openings": [
+        { "id": "g-front-door", "wallId": "g-s", "type": "door", "offset": 2.1, "width": 1.0, "height": 2.1, "sill": 0 },
+        { "id": "g-living-win", "wallId": "g-s", "type": "window", "offset": 6.5, "width": 2.0, "height": 1.3, "sill": 0.9 },
+        { "id": "g-living-win-e", "wallId": "g-e", "type": "window", "offset": 2.2, "width": 1.6, "height": 1.3, "sill": 0.9 },
+        { "id": "g-wc-win", "wallId": "g-e", "type": "window", "offset": 6.25, "width": 0.6, "height": 0.7, "sill": 1.4 },
+        { "id": "g-kitchen-win", "wallId": "g-n", "type": "window", "offset": 4.75, "width": 1.4, "height": 1.1, "sill": 1.0 },
+        { "id": "g-hall-win", "wallId": "g-w", "type": "window", "offset": 1.2, "width": 0.9, "height": 1.3, "sill": 0.9 },
+        { "id": "g-living-door", "wallId": "g-hall", "type": "door", "offset": 2.0, "width": 0.9, "height": 2.05, "sill": 0 },
+        { "id": "g-kitchen-door", "wallId": "g-hall", "type": "door", "offset": 6.5, "width": 0.9, "height": 2.05, "sill": 0 },
+        { "id": "g-arch", "wallId": "g-mid", "type": "arch", "offset": 2.5, "width": 1.6, "height": 2.3, "sill": 0 },
+        { "id": "g-wc-door", "wallId": "g-wc", "type": "door", "offset": 2.5, "width": 0.8, "height": 2.05, "sill": 0 }
+      ],
+      "rooms": [
+        { "id": "g-r-hall", "name": "Hall", "type": "hall", "polygon": [[0, 0], [3, 0], [3, 8], [0, 8]] },
+        { "id": "g-r-living", "name": "Living room", "type": "living", "polygon": [[3, 0], [10, 0], [10, 4.5], [3, 4.5]] },
+        { "id": "g-r-kitchen", "name": "Kitchen", "type": "kitchen", "polygon": [[3, 4.5], [7.5, 4.5], [7.5, 8], [3, 8]] },
+        { "id": "g-r-wc", "name": "WC", "type": "wc", "polygon": [[7.5, 4.5], [10, 4.5], [10, 8], [7.5, 8]] }
+      ],
+      "voids": [],
+      "stairs": [
+        { "id": "g-stair", "start": [0.7, 1.5], "direction": 90, "width": 1.0, "steps": 16, "going": 0.25, "toFloor": "first" }
+      ],
+      "rails": []
+    },
+    {
+      "id": "first",
+      "name": "First floor",
+      "elevation": 3.0,
+      "height": 2.7,
+      "walls": [
+        { "id": "f-s", "a": [0, 0], "b": [10, 0], "thickness": 0.25 },
+        { "id": "f-e", "a": [10, 0], "b": [10, 8], "thickness": 0.25 },
+        { "id": "f-n", "a": [10, 8], "b": [0, 8], "thickness": 0.25 },
+        { "id": "f-w", "a": [0, 8], "b": [0, 0], "thickness": 0.25 },
+        { "id": "f-hall", "a": [3, 0], "b": [3, 8], "thickness": 0.12 },
+        { "id": "f-corr-s", "a": [3, 3.6], "b": [10, 3.6], "thickness": 0.12 },
+        { "id": "f-corr-n", "a": [3, 4.8], "b": [10, 4.8], "thickness": 0.12 },
+        { "id": "f-bed12", "a": [6.5, 0], "b": [6.5, 3.6], "thickness": 0.12 },
+        { "id": "f-bath", "a": [6, 4.8], "b": [6, 8], "thickness": 0.12 }
+      ],
+      "openings": [
+        { "id": "f-bed1-win", "wallId": "f-s", "type": "window", "offset": 4.75, "width": 1.4, "height": 1.3, "sill": 0.9 },
+        { "id": "f-bed2-win", "wallId": "f-s", "type": "window", "offset": 8.25, "width": 1.4, "height": 1.3, "sill": 0.9 },
+        { "id": "f-bed2-win-e", "wallId": "f-e", "type": "window", "offset": 1.8, "width": 1.2, "height": 1.3, "sill": 0.9 },
+        { "id": "f-corr-win", "wallId": "f-e", "type": "window", "offset": 4.2, "width": 0.8, "height": 1.3, "sill": 0.9 },
+        { "id": "f-bed3-win-e", "wallId": "f-e", "type": "window", "offset": 6.4, "width": 1.4, "height": 1.3, "sill": 0.9 },
+        { "id": "f-bed3-win", "wallId": "f-n", "type": "window", "offset": 2.0, "width": 1.4, "height": 1.3, "sill": 0.9 },
+        { "id": "f-bath-win", "wallId": "f-n", "type": "window", "offset": 5.5, "width": 0.8, "height": 0.7, "sill": 1.4 },
+        { "id": "f-hall-win-n", "wallId": "f-n", "type": "window", "offset": 8.5, "width": 1.0, "height": 1.3, "sill": 0.9 },
+        { "id": "f-stair-win", "wallId": "f-w", "type": "window", "offset": 4.0, "width": 1.0, "height": 1.3, "sill": 0.9 },
+        { "id": "f-corr-arch", "wallId": "f-hall", "type": "arch", "offset": 4.2, "width": 1.0, "height": 2.2, "sill": 0 },
+        { "id": "f-bed1-door", "wallId": "f-corr-s", "type": "door", "offset": 1.5, "width": 0.85, "height": 2.05, "sill": 0 },
+        { "id": "f-bed2-door", "wallId": "f-corr-s", "type": "door", "offset": 4.5, "width": 0.85, "height": 2.05, "sill": 0 },
+        { "id": "f-bath-door", "wallId": "f-corr-n", "type": "door", "offset": 1.5, "width": 0.8, "height": 2.05, "sill": 0 },
+        { "id": "f-bed3-door", "wallId": "f-corr-n", "type": "door", "offset": 4.5, "width": 0.85, "height": 2.05, "sill": 0 }
+      ],
+      "rooms": [
+        { "id": "f-r-landing", "name": "Landing", "type": "hall", "polygon": [[0, 0], [3, 0], [3, 8], [0, 8]] },
+        { "id": "f-r-bed1", "name": "Bedroom 1", "type": "bedroom", "polygon": [[3, 0], [6.5, 0], [6.5, 3.6], [3, 3.6]] },
+        { "id": "f-r-bed2", "name": "Bedroom 2", "type": "bedroom", "polygon": [[6.5, 0], [10, 0], [10, 3.6], [6.5, 3.6]] },
+        { "id": "f-r-corr", "name": "Corridor", "type": "hall", "polygon": [[3, 3.6], [10, 3.6], [10, 4.8], [3, 4.8]] },
+        { "id": "f-r-bath", "name": "Bathroom", "type": "bathroom", "polygon": [[3, 4.8], [6, 4.8], [6, 8], [3, 8]] },
+        { "id": "f-r-bed3", "name": "Bedroom 3", "type": "bedroom", "polygon": [[6, 4.8], [10, 4.8], [10, 8], [6, 8]] }
+      ],
+      "voids": [
+        { "id": "f-stairwell", "polygon": [[0.125, 2.0], [1.2, 2.0], [1.2, 5.5], [0.125, 5.5]] }
+      ],
+      "stairs": [],
+      "rails": [
+        { "id": "f-stair-rail", "points": [[0.125, 2.0], [1.2, 2.0], [1.2, 5.5]], "height": 1.0 }
+      ]
+    }
+  ],
+  "roof": { "type": "gable", "pitch": 35, "overhang": 0.4 }
+}

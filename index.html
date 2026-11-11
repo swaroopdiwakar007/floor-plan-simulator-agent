@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>House Walkthrough</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="hud">
+      <div id="floors"></div>
+      <div class="row">
+        <button id="pov-btn" title="Switch 1st / 3rd person (V)">1st person</button>
+        <button id="time-btn" title="Switch day / night (N)">☀ Day</button>
+        <button id="overview-btn" title="Toggle top-down overview (Tab)">Overview</button>
+      </div>
+      <div id="status"></div>
+    </div>
+    <canvas id="minimap" width="220" height="220"></canvas>
+    <div id="start">
+      <div class="card">
+        <h1>House Walkthrough</h1>
+        <p>Click to walk</p>
+        <p class="keys">W / S forward · backward &nbsp;·&nbsp; A / D step left · right &nbsp;·&nbsp; ← / → turn<br />↑ / ↓ face up · down &nbsp;·&nbsp; Mouse look &nbsp;·&nbsp; Shift run<br />V 1st / 3rd person &nbsp;·&nbsp; N day / night &nbsp;·&nbsp; 1–9 floor &nbsp;·&nbsp; Tab overview &nbsp;·&nbsp; Esc release mouse</p>
+        <ul id="warnings"></ul>
+      </div>
+    </div>
+    <div id="crosshair"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
