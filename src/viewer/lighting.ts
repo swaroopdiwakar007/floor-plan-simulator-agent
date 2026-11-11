@@ -25,7 +25,7 @@ const PRESETS: Record<TimeOfDay, Preset> = {
   day: {
     sky: 0xbfd8ee, fogNear: 60, fogFar: 200,
     hemiSky: 0xffffff, hemiGround: 0xd9d2c5, hemi: 1.6,
-    sunColor: 0xfff2dd, sun: 2.8, sunFrom: [0.6, 1.0, 0.35],
+    sunColor: 0xfff2dd, sun: 2.8, sunFrom: [0.65, 0.75, 0.55],
     exposure: 1.0, lampsOn: false,
   },
   night: {

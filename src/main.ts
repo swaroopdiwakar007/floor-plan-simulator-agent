@@ -211,8 +211,8 @@ updateFloorButtons();
 // ---------- Loop ----------
 const clock = new THREE.Clock();
 let lastFloor = -1;
-renderer.setAnimationLoop(() => {
-  const dt = Math.min(clock.getDelta(), 0.05);
+/** One frame: simulate `dt` seconds, update HUD and render. */
+function tick(dt: number) {
   walker.update(dt);
   if (overview) ovControls.update();
 
@@ -229,11 +229,15 @@ renderer.setAnimationLoop(() => {
     : `${resolved.floors[fi].name} · ${room ? room.name : 'Outside'}`;
   minimap.draw(fi, pos, walker.yaw);
   renderer.render(scene, overview ? ovCam : fpCam);
-});
+}
+renderer.setAnimationLoop(() => tick(Math.min(clock.getDelta(), 0.05)));
 
 // Debug/testing handle.
 (window as unknown as { __app: unknown }).__app = {
   walker, phys, resolved, setOverview, goToFloor, issues, togglePOV, toggleTime, lighting,
   render: () => renderer.render(scene, overview ? ovCam : fpCam),
+  tick,
   ovControls,
+  ovCam,
+  canvas: renderer.domElement,
 };
