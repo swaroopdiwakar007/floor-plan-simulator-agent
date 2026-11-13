@@ -255,3 +255,7 @@ There are 15 tests. The logic they cover is pure TypeScript that doesn't need a 
 - Only straight stair flights; no landings or winders yet.
 - Flat colours, no door leaves, and a simple stand-in figure for third person.
 - Pointer lock (mouse-look) needs a normal browser tab. In embedded previews, use the arrow keys to turn and to face up or down.
+
+## License
+
+Released under the [MIT License](LICENSE). You can use, copy, change and share it freely, including in commercial projects, as long as you keep the copyright and license notice.
